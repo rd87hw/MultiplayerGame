@@ -3,10 +3,10 @@
   }
 #startBtn {
     position: absolute;
-    top: 500px;
-    left: 100px;
-    width: 400px;
-    height: 100px;
+    top: 60%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+     transform: translate(-50%, -50%);
     font-size: 40px;
     border: none;
     cursor:pointer;
@@ -16,10 +16,11 @@
 
 #leaderboardBtn {
     position: absolute;
-    top: 500px;
-    left: 750px;
-    width: 400px;
-    height: 100px;
+    position: absolute;
+    top: 75%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+     transform: translate(-50%, -50%);
     font-size: 40px;
     border: none;
     cursor:pointer;
@@ -37,6 +38,10 @@ h1{
     top:450px;
     left:100px;
     color:white;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+     transform: translate(-50%, -50%);
 
 }
 #leaderboardText{
@@ -44,4 +49,8 @@ h1{
     top:450px;
     left:750px;
     color:white;
+    top: 65%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+     transform: translate(-50%, -50%);
 }
