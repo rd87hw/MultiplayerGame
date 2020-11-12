@@ -1,9 +1,47 @@
-
+#menuBody {
+    background-image: url('background.jpg');
+  }
 #startBtn {
+    position: absolute;
+    top: 500px;
+    left: 100px;
+    width: 400px;
+    height: 100px;
+    font-size: 40px;
+    border: none;
+    cursor:pointer;
+    background-color: Transparent;
+    color:white;
+}
+
+#leaderboardBtn {
     position: absolute;
     top: 500px;
     left: 750px;
     width: 400px;
     height: 100px;
     font-size: 40px;
+    border: none;
+    cursor:pointer;
+    background-color: Transparent;
+    color:white;
+    
+}
+h1{
+    text-align: center;
+    padding-top:200px;
+    color:white;
+}
+#startText{
+    position:absolute;
+    top:450px;
+    left:100px;
+    color:white;
+
+}
+#leaderboardText{
+    position:absolute;
+    top:450px;
+    left:750px;
+    color:white;
 }
