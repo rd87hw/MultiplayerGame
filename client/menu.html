@@ -10,9 +10,33 @@
  <form action="index.html">
      <button type="submit" id="startBtn">START</button>
  </form>
- <form action="leaderboard.html">
-    <button type="submit" id="leaderboardBtn">LEADERBOARD</button>
-</form>
+ 
+    <button id = "leaderboardBtn" onclick="toggleLeaderboard()">LEADERBOARD</button>
+
+    <div id="container">
+        <div class="row">
+          <div class="name">Player1</div><div class="time">430</div>
+        </div>
+      
+        <div class="row">
+          <div class="name">Player2</div><div class="time">580</div>
+        </div>
+      
+        <div class="row">
+          <div class="name">Player3</div><div class="time">310</div>
+        </div>
+      
+        <div class="row">
+          <div class="name">Player4</div><div class="time">640</div>
+        </div>
+      
+        <div class="row">
+          <div class="name">Player5</div><div class="time">495</div>
+        </div>
+      </div>
+
+    <script src = "app.js"></script>
+
 
 </body>
 </html>
