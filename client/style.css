@@ -83,3 +83,11 @@ h1{
     display: inline-block;
     width: 25%;
 }
+#containerGame{
+    position: center;
+    width: 600px;
+    height: 600px;
+    margin: 10px;
+    background-color:black;
+    display: none;
+}
