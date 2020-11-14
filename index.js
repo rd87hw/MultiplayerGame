@@ -4,14 +4,13 @@ const server = require('http').createServer(app);
 const path = require('path');
 const io = require('socket.io') (server)
 
-app.use(express.static(path.join(__dirname, '/static')))
+app.use(express.static(path.join(__dirname, '/client')))
 
 io.on('connection', socket => {
     console.log('Someone connected.');
 })
 
-const port = process.env.PORT || 3000;
 
-server.listen(port, () => {
-    console.log('Listening on: *', port);
+server.listen(3000, () => {
+    console.log('Listening on: *', 3000);
 })
