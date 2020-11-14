@@ -7,12 +7,51 @@
   <title>Multiplayer Game</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
   <div id="containerGame">
-    hello
+    <div id="guy"></div>
   </div>
 
 <script src="socket.io/socket.io.js"></script>
   <script src="app.js" type="module"></script>
+  <script>
+    var guy=document.getElementById('guy');
+    var container=document.getElementById('container')
+    var guyLeft = 0;
+    var guyTop = 0;
+
+    function anim(e){
+    if(e.keyCode==37){
+      guyLeft-=5;
+      guy.style.left = guyLeft + 'px';
+      if(guyLeft <=0){
+        guyLeft +=5;
+      }
+    }
+    if(e.keyCode==38){
+      guyTop -=5;
+      guy.style.top = guyTop + 'px';
+      if(guyTop <=0){
+        guyTop +=5;
+      }
+    }
+    if(e.keyCode==39){
+      guyLeft +=5;
+      guy.style.left = guyLeft + 'px';
+      if(guyLeft >=490){
+        guyLeft -=5;
+      }
+    }
+    if(e.keyCode==40){
+      guyTop +=5;
+      guy.style.top = guyTop + 'px';
+      if(guyTop >=490){
+        guyTop -=5;
+    }
+  }
+}
+    document.onkeydown = anim;
+  </script>
 </body>
 </html>
