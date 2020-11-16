@@ -2,56 +2,61 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Multiplayer Game</title>
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
+  <script src="socket.io/socket.io.js"></script>
+  <button id = "startGame" onclick="mazeGen(31)">BUILD YOUR MAZE</button>
+  
+  <div id = "maze"></div>
+  
   <div id="containerGame">
+    
     <div id="guy"></div>
   </div>
 
-<script src="socket.io/socket.io.js"></script>
-  <script src="app.js" type="module"></script>
+  <script src="game.js"></script>
   <script>
-    var guy=document.getElementById('guy');
-    var container=document.getElementById('container')
-    var guyLeft = 0;
-    var guyTop = 0;
+    let guy=document.getElementById('guy');
+    let container=document.getElementById('container')
+    let guyLeft = 0;
+    let guyTop = 0;
 
     function anim(e){
     if(e.keyCode==37){
       guyLeft-=5;
       guy.style.left = guyLeft + 'px';
-      if(guyLeft <=0){
-        guyLeft +=5;
-      }
+      // if(guyLeft <=0){
+      //   guyLeft +=5;
+      // }
     }
     if(e.keyCode==38){
       guyTop -=5;
       guy.style.top = guyTop + 'px';
-      if(guyTop <=0){
-        guyTop +=5;
-      }
+      // if(guyTop <=0){
+      //   guyTop +=5;
+      // }
     }
     if(e.keyCode==39){
       guyLeft +=5;
       guy.style.left = guyLeft + 'px';
-      if(guyLeft >=490){
-        guyLeft -=5;
-      }
+      // if(guyLeft >=490){
+      //   guyLeft -=5;
+      // }
     }
     if(e.keyCode==40){
       guyTop +=5;
       guy.style.top = guyTop + 'px';
-      if(guyTop >=490){
-        guyTop -=5;
-    }
+    //if(guyTop >=490){
+    //  guyTop -=5;
+    // }
   }
 }
     document.onkeydown = anim;
   </script>
+
+
+
 </body>
 </html>
