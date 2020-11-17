@@ -33,8 +33,9 @@ function mazeGen(size) {
     
 
     drawOuterWalls();
+    let entrance = addDoor();
     // minX = 1, maxX = grid.length - 2, minY = 1, maxY = grid.length - 2
-    drawInnerWalls(true, 1, grid.length - 2, 1, grid.length - 2);
+    drawInnerWalls(true, 1, grid.length - 2, 1, grid.length - 2, entrance);
     displayMaze();
 }
 
@@ -108,7 +109,7 @@ function drawVerticalWall(minimumY, maximumY, wallOnX) {
     }
 }
 
-function drawInnerWalls(isDone, minimumX, maximumX, minimumY, maximumY) {
+function drawInnerWalls(isDone, minimumX, maximumX, minimumY, maximumY, gate) {
     if (isDone) {
         // Base case, stops us from getting 2 wide walls
         if (maximumX - minimumX < 2) {
@@ -125,12 +126,12 @@ function drawInnerWalls(isDone, minimumX, maximumX, minimumY, maximumY) {
         // Need minimumX and maxX for the vertical walls
         // Need minY to determine where the start is
         // Need wallOnY - 1 to determine where the new max is for the next wall
-        drawInnerWalls(!isDone, minimumX, maximumX, minimumY, wallOnY - 1);
+        drawInnerWalls(!isDone, minimumX, maximumX, minimumY, wallOnY - 1, gate);
         // Need to call recursively for the second half of the maze
         // Need the first 3 as above
         // Need the wallOnY + 1 to determine where the new section begins
         // maxY is used to determine the maxY value as before
-        drawInnerWalls(!isDone, minimumX, maximumX, wallOnY + 1, maximumY);
+        drawInnerWalls(!isDone, minimumX, maximumX, wallOnY + 1, maximumY, gate);
         }
     }
     else {
@@ -144,12 +145,19 @@ function drawInnerWalls(isDone, minimumX, maximumX, minimumY, maximumY) {
             // Call the draw wall method
             drawVerticalWall(minimumY, maximumY, wallOnX);
             // Recursively call the the draw inner walls method passing the new parameters as needed (SAME AS ABOVE BUT CHANGE X AND Y)
-            drawInnerWalls(!isDone, minimumX, wallOnX - 1, minimumY, maximumY);
+            drawInnerWalls(!isDone, minimumX, wallOnX - 1, minimumY, maximumY, gate);
             // Same as before but change X and Y
-            drawInnerWalls(!isDone, wallOnX + 1, maximumX, minimumY, maximumY);
+            drawInnerWalls(!isDone, wallOnX + 1, maximumX, minimumY, maximumY, gate);
 
         }
     }
+}
+
+function addDoor() {
+    // Randomly add a door to the maze keeping it on an odd number so no walls block the door
+    let x = Math.floor(randNumber(1, grid.length - 1)/2)*2+1;
+    // Call the element door
+    grid[grid.length -1][x] = "door";
 }
 
 // ---Think of better way to display using DOM---
@@ -159,7 +167,6 @@ function displayMaze() {
     document.getElementById("maze").innerHTML = "";
 
     let div1 = document.createElement("div")
-
     for (let i = 0; i < grid.length; i++) {
         let output = "<div>"
         for (let j = 0; j < grid.length; j++) {
@@ -171,6 +178,7 @@ function displayMaze() {
 }
 
 window.addEventListener('keydown', movePlayer);
+// window.addEventListener('keydown', collisionDetection)
   
 let player = document.getElementById('player');
 let playerLeft = 0;
@@ -180,6 +188,7 @@ function movePlayer(e){
     if(e.keyCode==37){
         playerLeft-=5;
         player.style.left = playerLeft + 'px';
+        
     }
     if(e.keyCode==38){
         playerTop -=5;
@@ -195,4 +204,42 @@ function movePlayer(e){
     }
 }
 
-    //document.querySelectorAll("div.wall");
+// Use setInterval to check for collision every 40ms
+
+setInterval(function collisionDetection() {
+    let playerRect = player.getBoundingClientRect();
+
+    // Declare a variable wall that selects all the walls in the maze
+    let wall = document.querySelectorAll("div.wall")
+    // Declare an array that reads in all the walls of the array
+    let wallArray = [].slice.call(wall);
+    // Declare a second array that we can store the boundingClientRect objects in
+    let wallRectArray = [];
+    // Loop through the size of the array
+    for (let i = 0; i < wallArray.length; i++) {
+        // For each of the elements in the array get their bounding rects
+        // This allows us to read in the x and y coords to check for collision later
+        wallRectArray[i] = wallArray[i].getBoundingClientRect();
+        /*
+        getBoundingClientRect returns an object of type DOMRect. The object stores the coordiantes for:
+        bottom, top, left, right, x and y, it also stores the height and width of the element. Using this we can read
+        in the DOMRect object for each wall element and use it to compare against the player element for collision.
+        If the players x value is less than the current wall elements x value + the elements width AND
+        the player elements x value + width is more than the current wall elements x value AND
+        the player elements y value is less than the current wall elements y value + its height AND
+        the player elements y value + its height is greater than the walls y value then we have collision
+
+        This works due to it testing for any space around these values
+        */
+        if (playerRect.x < wallRectArray[i].x + wallRectArray[i].width &&
+            playerRect.x + playerRect.width > wallRectArray[i].x &&
+            playerRect.y < wallRectArray[i].y + wallRectArray[i].height &&
+            playerRect.y + playerRect.height > wallRectArray[i].y) {
+                // Log collision on what wall we are colliding with
+                console.log("Collision" +[i]);
+    
+            }
+    }  
+},1000/25);
+
+
