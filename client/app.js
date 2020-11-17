@@ -169,3 +169,30 @@ function displayMaze() {
          document.getElementById("maze").innerHTML += output;
     }
 }
+
+window.addEventListener('keydown', movePlayer);
+  
+let player = document.getElementById('player');
+let playerLeft = 0;
+let playerTop = 0;
+
+function movePlayer(e){
+    if(e.keyCode==37){
+        playerLeft-=5;
+        player.style.left = playerLeft + 'px';
+    }
+    if(e.keyCode==38){
+        playerTop -=5;
+        player.style.top = playerTop + 'px';
+    }
+    if(e.keyCode==39){
+        playerLeft +=5;
+        player.style.left = playerLeft + 'px';
+    }
+    if(e.keyCode==40){
+        playerTop +=5;
+        player.style.top = playerTop + 'px';
+    }
+}
+
+    //document.querySelectorAll("div.wall");

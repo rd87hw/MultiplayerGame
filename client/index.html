@@ -9,54 +9,12 @@
   <script src="socket.io/socket.io.js"></script>
   <button id = "startGame" onclick="mazeGen(31)">BUILD YOUR MAZE</button>
   
-  <div id = "maze"></div>
-  
   <div id="containerGame">
-    
-    <div id="guy"></div>
+    <div id = "maze"></div>
+    <div id="player"></div>
   </div>
 
-  <script src="game.js"></script>
-  <script>
-    let guy=document.getElementById('guy');
-    let container=document.getElementById('container')
-    let guyLeft = 0;
-    let guyTop = 0;
-
-    function anim(e){
-    if(e.keyCode==37){
-      guyLeft-=5;
-      guy.style.left = guyLeft + 'px';
-      // if(guyLeft <=0){
-      //   guyLeft +=5;
-      // }
-    }
-    if(e.keyCode==38){
-      guyTop -=5;
-      guy.style.top = guyTop + 'px';
-      // if(guyTop <=0){
-      //   guyTop +=5;
-      // }
-    }
-    if(e.keyCode==39){
-      guyLeft +=5;
-      guy.style.left = guyLeft + 'px';
-      // if(guyLeft >=490){
-      //   guyLeft -=5;
-      // }
-    }
-    if(e.keyCode==40){
-      guyTop +=5;
-      guy.style.top = guyTop + 'px';
-    //if(guyTop >=490){
-    //  guyTop -=5;
-    // }
-  }
-}
-    document.onkeydown = anim;
-  </script>
-
-
+  <script src="app.js"></script>
 
 </body>
 </html>
