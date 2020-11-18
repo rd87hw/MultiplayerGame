@@ -1,5 +1,6 @@
 const socket = io()
 
+
 // Starts a function so we can toggle the leaderboard
 function toggleLeaderboard() {
     // Assign x to the container element, so code is easier to read
@@ -176,39 +177,143 @@ function displayMaze() {
          document.getElementById("maze").innerHTML += output;
     }
 }
+// Listens for any keypress down then calls the movePlayer function
+document.addEventListener('keydown', keyDown, false);
+document.addEventListener('keyup', keyUp, false);
 
-window.addEventListener('keydown', movePlayer);
-// window.addEventListener('keydown', collisionDetection)
-  
-let player = document.getElementById('player');
-let playerLeft = 0;
-let playerTop = 0;
 
-function movePlayer(e){
-    if(e.keyCode==37){
-        playerLeft-=5;
-        player.style.left = playerLeft + 'px';
-        
+
+let gameContainer = document.createElement("div"),
+    maze = document.createElement("div"),
+
+
+    player = document.createElement('div'),
+    playerPos = {
+        x: 0,
+        y: 0
+    },
+    left = false,
+    right = false,
+    up = false,
+    down = false,
+    
+    playerSpeed = 1,
+    playerWidth = player.offsetWidth,
+    playerHeight = player.offsetHeight;
+// Append the variable gameContainer to the document
+document.body.appendChild(gameContainer);
+// Add the style of gameContainer to the variable
+gameContainer.setAttribute("id", "gameContainer");
+// Append the maze to the game container
+gameContainer.appendChild(maze);
+// Sets the newly created div to have the maze style
+maze.setAttribute("id", "maze");
+// Append player to the container
+gameContainer.appendChild(player);
+// Add player to the style class of player
+player.classList.add("player");
+
+
+// Set the position of the player x and y
+playerPos.x = (gameContainer.offsetWidth / 2) - (player.offsetWidth / 2);
+playerPos.y = gameContainer.offsetHeight - (player.offsetHeight * 2);
+
+gameContainer.leftBoundary = 0;
+gameContainer.rightBoundary = gameContainer.offsetWidth - player.offsetWidth;
+gameContainer.topBoundary = 0;
+gameContainer.bottomBoundary = gameContainer.offsetHeight - player.offsetHeight;
+
+
+// We set variables to true and false so the player has a more enjoyable experience with smooth movement
+function keyDown(e) {
+    // If left arrow key or a is pressed set left to true
+    if (e.keyCode == 37 || e.keyCode == 65) {
+        left = true;
     }
-    if(e.keyCode==38){
-        playerTop -=5;
-        player.style.top = playerTop + 'px';
+    // If the right arrow key or d is pressed set right to true
+    else if (e.keyCode == 39 || e.keyCode == 68) {
+        right = true;
     }
-    if(e.keyCode==39){
-        playerLeft +=5;
-        player.style.left = playerLeft + 'px';
+    // If the up arrow key or w is pressed set up to true
+    if (e.keyCode == 38 || e.keyCode == 87) {
+        up = true;
     }
-    if(e.keyCode==40){
-        playerTop +=5;
-        player.style.top = playerTop + 'px';
+    // If the down arrow key or s is pressed set down to true
+    else if (e.keyCode == 40 || e.keyCode == 83) {
+        down = true
     }
 }
+// This function is the same as keyDown but for when the key is released
+// Checks when the arrow keys are released and sets the corrosponding variable to false
+function keyUp(e) {
+    if (e.keyCode == 37 || e.keyCode == 65) {
+        left = false;
+    }
+    else if (e.keyCode == 39 || e.keyCode == 68) {
+        right = false;
+    }
+    if (e.keyCode == 38 || e.keyCode == 87) {
+        up = false;
+    }
+    else if (e.keyCode == 40 || e.keyCode == 83) {
+        down = false;
+    }
+}
+function movePlayer() {
+    // If left is true then move the player left by playerSpeed
+    if (left == true) {
+        playerPos.x -= playerSpeed;
+        if (collisionDetection() == true) {
+            playerPos.x += playerSpeed;
+        }
+    }
+    // If right is true then move the player right by playerSpeed
+    else if (right == true) {
+        playerPos.x += playerSpeed;
+        if (collisionDetection() == true) {
+            playerPos.x -= playerSpeed;
+        }
+    }
+    // If up is true then move the player up by playerSpeed
+    if (up == true) {
+        playerPos.y -= playerSpeed;
+        if (collisionDetection() == true) {
+            playerPos.y += playerSpeed;
+        }
+    }
+    // If down is true then move the player down by playerSpeed
+    else if (down == true) {
+        playerPos.y += playerSpeed;
+        if (collisionDetection() == true) {
+            playerPos.y -= playerSpeed;
+        }
+    }
+    // Keeps the player inside the container once they are out of the maze
+    if (playerPos.x < gameContainer.leftBoundary) {
+        playerPos.x = gameContainer.leftBoundary;
+    }
+    if (playerPos.x > gameContainer.rightBoundary) {
+        playerPos.x = gameContainer.rightBoundary;
+    }
+    if (playerPos.y < gameContainer.topBoundary) {
+        playerPos.y = gameContainer.topBoundary;
+    }
+    if (playerPos.y > gameContainer.bottomBoundary) {
+        playerPos.y = gameContainer.bottomBoundary;
+    }
+    player.style.left = playerPos.x + "px";
+    player.style.top = playerPos.y + "px";
+}
+// Loops over the move player at 60 frames per second
+function loop() {
+    movePlayer();
+    setTimeout(loop, 1000/60);
+}
+// Call loop so we can move
+loop();
 
-// Use setInterval to check for collision every 40ms
-
-setInterval(function collisionDetection() {
+function collisionDetection(isColliding) {
     let playerRect = player.getBoundingClientRect();
-
     // Declare a variable wall that selects all the walls in the maze
     let wall = document.querySelectorAll("div.wall")
     // Declare an array that reads in all the walls of the array
@@ -230,16 +335,18 @@ setInterval(function collisionDetection() {
         the player elements y value + its height is greater than the walls y value then we have collision
 
         This works due to it testing for any space around these values
+        This works only with squares and rectangles
         */
         if (playerRect.x < wallRectArray[i].x + wallRectArray[i].width &&
             playerRect.x + playerRect.width > wallRectArray[i].x &&
             playerRect.y < wallRectArray[i].y + wallRectArray[i].height &&
             playerRect.y + playerRect.height > wallRectArray[i].y) {
                 // Log collision on what wall we are colliding with
-                console.log("Collision" +[i]);
-    
+                console.log("Collision on wall # " +[i]);
+                // If we are colliding with a wall then return true so we can handle it
+                return isColliding = true;
             }
     }  
-},1000/25);
+}
 
 
