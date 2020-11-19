@@ -192,12 +192,16 @@ let gameContainer = document.createElement("div"),
         x: 0,
         y: 0
     },
+    playerPrevPos = {
+        x: -1,
+        y: -1
+    },
     left = false,
     right = false,
     up = false,
     down = false,
     
-    playerSpeed = 1,
+    playerSpeed = 3,
     playerWidth = player.offsetWidth,
     playerHeight = player.offsetHeight;
 // Append the variable gameContainer to the document
@@ -263,29 +267,32 @@ function movePlayer() {
     // If left is true then move the player left by playerSpeed
     if (left == true) {
         playerPos.x -= playerSpeed;
-        if (collisionDetection() == true) {
-            playerPos.x += playerSpeed;
+        playerPrevPos.x = playerPos.x
+        if (collisionDetection()) {
+            return;
         }
     }
     // If right is true then move the player right by playerSpeed
     else if (right == true) {
         playerPos.x += playerSpeed;
-        if (collisionDetection() == true) {
-            playerPos.x -= playerSpeed;
+        playerPrevPos.x += playerSpeed
+        if (collisionDetection()) {
+            return;
         }
     }
     // If up is true then move the player up by playerSpeed
     if (up == true) {
         playerPos.y -= playerSpeed;
-        if (collisionDetection() == true) {
-            playerPos.y += playerSpeed;
-        }
+        playerPrevPos.y = playerPos.y
+        Collide();
+        
     }
     // If down is true then move the player down by playerSpeed
     else if (down == true) {
         playerPos.y += playerSpeed;
-        if (collisionDetection() == true) {
-            playerPos.y -= playerSpeed;
+        playerPrevPos.y += playerSpeed
+        if (collisionDetection()) {
+            return;
         }
     }
     // Keeps the player inside the container once they are out of the maze
@@ -303,7 +310,28 @@ function movePlayer() {
     }
     player.style.left = playerPos.x + "px";
     player.style.top = playerPos.y + "px";
-}
+
+    // Try set the boundary for the walls as above and if the players y or x is greater than the walls then set it to be equal to the walls
+
+
+    // Store player coords, then check the players current coords against the array of wall coords
+    // If there is no wall then allow the player to move
+    // Else dont move the player
+
+    function Collide() {
+        let wall = [];
+        wall = document.querySelectorAll("div.wall")
+        let wallCoords = [].slice.call(wall);
+        for (let i = 0; i < wall.length; i++) {
+            wallCoords[i] = wall[i].getBoundingClientRect();
+            console.log(wallCoords[i])
+            if ()
+
+        }
+    }
+}  
+
+
 // Loops over the move player at 60 frames per second
 function loop() {
     movePlayer();
@@ -312,41 +340,51 @@ function loop() {
 // Call loop so we can move
 loop();
 
-function collisionDetection(isColliding) {
-    let playerRect = player.getBoundingClientRect();
-    // Declare a variable wall that selects all the walls in the maze
-    let wall = document.querySelectorAll("div.wall")
-    // Declare an array that reads in all the walls of the array
-    let wallArray = [].slice.call(wall);
-    // Declare a second array that we can store the boundingClientRect objects in
-    let wallRectArray = [];
-    // Loop through the size of the array
-    for (let i = 0; i < wallArray.length; i++) {
-        // For each of the elements in the array get their bounding rects
-        // This allows us to read in the x and y coords to check for collision later
-        wallRectArray[i] = wallArray[i].getBoundingClientRect();
-        /*
-        getBoundingClientRect returns an object of type DOMRect. The object stores the coordiantes for:
-        bottom, top, left, right, x and y, it also stores the height and width of the element. Using this we can read
-        in the DOMRect object for each wall element and use it to compare against the player element for collision.
-        If the players x value is less than the current wall elements x value + the elements width AND
-        the player elements x value + width is more than the current wall elements x value AND
-        the player elements y value is less than the current wall elements y value + its height AND
-        the player elements y value + its height is greater than the walls y value then we have collision
+// function collisionDetection() {
+//     let playerRect = player.getBoundingClientRect();
+//     // Declare a variable wall that selects all the walls in the maze
+//     let wall = document.querySelectorAll("div.wall")
+//     // Declare an array that reads in all the walls of the array
+//     let wallArray = [].slice.call(wall);
+//     // Declare a second array that we can store the boundingClientRect objects in
+//     let wallRectArray = [];
+//     // Loop through the size of the array
+//     for (let i = 0; i < wallArray.length; i++) {
+//         // For each of the elements in the array get their bounding rects
+//         // This allows us to read in the x and y coords to check for collision later
+//         wallRectArray[i] = wallArray[i].getBoundingClientRect();
+//         /*
+//         getBoundingClientRect returns an object of type DOMRect. The object stores the coordiantes for:
+//         bottom, top, left, right, x and y, it also stores the height and width of the element. Using this we can read
+//         in the DOMRect object for each wall element and use it to compare against the player element for collision.
+//         If the players x value is less than the current wall elements x value + the elements width AND
+//         the player elements x value + width is more than the current wall elements x value AND
+//         the player elements y value is less than the current wall elements y value + its height AND
+//         the player elements y value + its height is greater than the walls y value then we have collision
 
-        This works due to it testing for any space around these values
-        This works only with squares and rectangles
-        */
-        if (playerRect.x < wallRectArray[i].x + wallRectArray[i].width &&
-            playerRect.x + playerRect.width > wallRectArray[i].x &&
-            playerRect.y < wallRectArray[i].y + wallRectArray[i].height &&
-            playerRect.y + playerRect.height > wallRectArray[i].y) {
-                // Log collision on what wall we are colliding with
-                console.log("Collision on wall # " +[i]);
-                // If we are colliding with a wall then return true so we can handle it
-                return isColliding = true;
-            }
-    }  
-}
+//         This works due to it testing for any space around these values
+//         This works only with squares and rectangles
+//         */
+//         if (playerRect.x < wallRectArray[i].x + wallRectArray[i].width &&
+//             playerRect.x + playerRect.width > wallRectArray[i].x &&
+//             playerRect.y < wallRectArray[i].y + wallRectArray[i].height &&
+//             playerRect.y + playerRect.height > wallRectArray[i].y) {
+//                 // Log collision on what wall we are colliding with
+//                 console.log("Collision on wall # " +[i]);
+
+//                 console.log("Player Position: " + playerPos.x + ":" + playerPos.y)
+
+//                 playerPos.x = wallRectArray[i].x;
+//                 playerPos.y = wallRectArray[i].y;
+                
+
+//                 console.log(playerPos.x + " " + playerPos.y)
+
+//                 // If we are colliding with a wall then return true so we can handle it
+//                 return true;
+//         }
+//     }
+      
+// }
 
 

@@ -102,11 +102,9 @@ h1{
 }
 .player{
     position: absolute;
-    height: 5px;
-    width: 5px;
+    height: 10px;
+    width: 10px;
     background-color: red;
-    left: 0;
-    top: 0;
 }
 /* using the id selector of maze we can select the maze and edit divs inside the maze div without affecting the rest of the page */
 #maze  div.wall{
