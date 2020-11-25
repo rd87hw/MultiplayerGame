@@ -1,14 +1,6 @@
 const socket = io()
 
-const loginForm = document.getElementById("login-form");
-const loginBtn = document.getElementById("login-submit");
 
-loginBtn.addEventListener("click", e => {
-    e.preventDefault();
-
-    const USERNAME = loginForm.username.value;
-    const PASSWORD = loginForm.password.value
-});
 
 // Starts a function so we can toggle the leaderboard
 function toggleLeaderboard() {
@@ -24,10 +16,16 @@ function toggleLeaderboard() {
     }
 }
 
-const build = document.getElementById("genBtn");
+const start = document.createElement("button");
+document.body.appendChild(start);
+start.innerHTML = "Submit Difficulty";
+start.setAttribute("id", "genBtn");
 
 
-build.addEventListener('click', () => {
+// const build = document.getElementById("genBtn");
+
+
+start.addEventListener('click', () => {
     
     
     let difficulty = document.getElementById("inputBox").value;
@@ -38,7 +36,6 @@ build.addEventListener('click', () => {
         // Set the maze to be nothing
     document.getElementById("maze").innerHTML = "";
 
-    let div1 = document.createElement("div")
     for (let i = 0; i < grid.length; i++) {
         let output = "<div>"
         for (let j = 0; j < grid.length; j++) {
@@ -47,30 +44,51 @@ build.addEventListener('click', () => {
         output += "</div>";
         document.getElementById("maze").innerHTML += output;
     }
+    // Listens for any keypress down then calls the movePlayer function
+    document.addEventListener('keydown', keyDown, false);
+    document.addEventListener('keyup', keyUp, false);  
+
+
+    // We set variables to true and false so the player has a more enjoyable experience with smooth movement
+    function keyDown(e) {
+        // If left arrow key or a is pressed set left to true
+        if (e.keyCode == 37 || e.keyCode == 65) {
+            left = true;
+        }
+        // If the right arrow key or d is pressed set right to true
+        else if (e.keyCode == 39 || e.keyCode == 68) {
+            right = true;
+        }
+        // If the up arrow key or w is pressed set up to true
+        if (e.keyCode == 38 || e.keyCode == 87) {
+            up = true;
+        }
+        // If the down arrow key or s is pressed set down to true
+        else if (e.keyCode == 40 || e.keyCode == 83) {
+            down = true
+        }
+    }
+    // This function is the same as keyDown but for when the key is released
+    // Checks when the arrow keys are released and sets the corrosponding variable to false
+    function keyUp(e) {
+        if (e.keyCode == 37 || e.keyCode == 65) {
+            left = false;
+        }
+        else if (e.keyCode == 39 || e.keyCode == 68) {
+            right = false;
+        }
+        if (e.keyCode == 38 || e.keyCode == 87) {
+            up = false;
+        }
+        else if (e.keyCode == 40 || e.keyCode == 83) {
+            down = false;
+        }
+    }
     })
 });
 
-
-
-// function displayMaze(grid) {
-    
-// }
-
-
-
-
-
-
-// Listens for any keypress down then calls the movePlayer function
-document.addEventListener('keydown', keyDown, false);
-document.addEventListener('keyup', keyUp, false);
-
-
-
 let gameContainer = document.createElement("div"),
     maze = document.createElement("div"),
-
-
     player = document.createElement('div'),
     playerPos = {
         x: 0,
@@ -85,7 +103,7 @@ let gameContainer = document.createElement("div"),
     up = false,
     down = false,
     
-    playerSpeed = 1.5,
+    playerSpeed = 4,
     playerWidth = player.offsetWidth,
     playerHeight = player.offsetHeight;
 // Append the variable gameContainer to the document
@@ -106,8 +124,8 @@ textDiff = document.createElement("input");
 document.body.appendChild(textDiff);
 // Give the new element the class style of inputBox
 textDiff.setAttribute("type", "text");
-textDiff.setAttribute("id", "inputBox")
-
+textDiff.setAttribute("id", "inputBox");
+textDiff.setAttribute("placeholder", "Difficulty");
 
 
 // Set the position of the player x and y
@@ -120,41 +138,6 @@ gameContainer.topBoundary = 0;
 gameContainer.bottomBoundary = gameContainer.offsetHeight - player.offsetHeight;
 
 
-// We set variables to true and false so the player has a more enjoyable experience with smooth movement
-function keyDown(e) {
-    // If left arrow key or a is pressed set left to true
-    if (e.keyCode == 37 || e.keyCode == 65) {
-        left = true;
-    }
-    // If the right arrow key or d is pressed set right to true
-    else if (e.keyCode == 39 || e.keyCode == 68) {
-        right = true;
-    }
-    // If the up arrow key or w is pressed set up to true
-    if (e.keyCode == 38 || e.keyCode == 87) {
-        up = true;
-    }
-    // If the down arrow key or s is pressed set down to true
-    else if (e.keyCode == 40 || e.keyCode == 83) {
-        down = true
-    }
-}
-// This function is the same as keyDown but for when the key is released
-// Checks when the arrow keys are released and sets the corrosponding variable to false
-function keyUp(e) {
-    if (e.keyCode == 37 || e.keyCode == 65) {
-        left = false;
-    }
-    else if (e.keyCode == 39 || e.keyCode == 68) {
-        right = false;
-    }
-    if (e.keyCode == 38 || e.keyCode == 87) {
-        up = false;
-    }
-    else if (e.keyCode == 40 || e.keyCode == 83) {
-        down = false;
-    }
-}
 function movePlayer() {
     // If left is true then move the player left by playerSpeed
     if (left == true) {
@@ -207,7 +190,7 @@ function movePlayer() {
 
     // Try set the boundary for the walls as above and if the players y or x is greater than the walls then set it to be equal to the walls
 
-
+    //TODO: 
     // Store player coords, then check the players current coords against the array of wall coords
     // If there is no wall then allow the player to move
     // Else dont move the player
@@ -231,7 +214,11 @@ function loop() {
 loop();
 
 function collisionDetection() {
-    let playerRect = player.getBoundingClientRect();
+    // Variables for collision with exit
+    const exit = document.querySelector("div.exit");
+    const exitRect = exit.getBoundingClientRect();
+    // Variable for collision with player
+    const playerRect = player.getBoundingClientRect();
     // Declare a variable wall that selects all the walls in the maze
     let wall = document.querySelectorAll("div.wall")
     // Declare an array that reads in all the walls of the array
@@ -274,9 +261,16 @@ function collisionDetection() {
                 // If we are colliding with a wall then return true so we can handle it
                 return true;
         }
+        if (playerRect.x < exitRect.x + exitRect.width &&
+            playerRect.x + playerRect.width > exitRect.x &&
+            playerRect.y < exitRect.y + exitRect.height &&
+            playerRect.y + playerRect.height > exitRect.y) {
+                end();
+            }
     }    
 }
-
+// TODO:
+// Move this to inside the maze generation event so the timer only starts when we click the button
 // Declare variables needed for the timer
 let timer = document.createElement("label"),
     sec = document.createElement("label"),
@@ -291,7 +285,7 @@ document.body.appendChild(cont);
 cont.appendChild(timer);
 
 // Loops through this function once every second, giving us a timer
-setInterval(function count() {
+let stopInterval = setInterval(function count() {
     total++;
     timer.innerHTML = padding(parseInt(total / 60) + ":" + padding(total % 60))
 }, 1000)
@@ -306,6 +300,23 @@ function padding(value) {
         return valueString;
     }
 }
+// TODO: Read the time and the username into the database for the given person
+// TODO: Move the player somewhere when they have finished
+function end() {
+    // Take final time
+    const FINAL_TIME = timer.innerHTML;
+    // Set the timer to Finished
+    timer.innerHTML = "FINISHED!"
+    // Stop the clock from running after we change the text
+    clearInterval(stopInterval);
+
+    playerPos = {x: 0, y: 0};
 
 
+    
+
+    
+}
+
+// TODO: Possibly implement 2 players where they can race
 

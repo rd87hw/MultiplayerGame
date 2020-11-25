@@ -117,6 +117,11 @@ h1{
     height: 15px;
     background-color: aqua;
 }
+#maze div.exit {
+    width: 15px;
+    height: 15px;
+    background-color: blueviolet;
+}
 #maze div {
     display: flex;
 }
@@ -126,7 +131,12 @@ h1{
     width: 15px;
 }
 
-
+#formDiff {
+    align-self: flex-start;
+    display: grid;
+    justify-items: center;
+    align-items: center;
+}
 #inputBox {
     width: 350px;
     height: 100px;
@@ -138,12 +148,32 @@ h1{
     left: 50%;
     top: 8%;
     position: absolute;
-    display: relative
+    display: relative;
 
 }
+#submit {
+    width: 100%;
+    padding: 7px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    background-color: #3a3a3a;
+    cursor: pointer;
+    outline: none;
+}
 #genBtn {
-    top: 7%;
+    height: 20px;
+    width: 150px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    text-align: center;
+    color: white;
+    background-color: #3a3a3a;
+    cursor: pointer;
+    position: absolute;
     left: 60%;
+    top: 18%;
 }
 #startGame {
     top: 7%;

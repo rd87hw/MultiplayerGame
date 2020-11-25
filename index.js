@@ -57,7 +57,9 @@ function mazeGen(size) {
     // Draw outer walls after the inner walls to stop holes being made in the outerwalls
     drawOuterWalls();
     // Add the door
-    let entrance = addDoor();
+    addDoor();
+    // Add exit door
+    addExit();
 }
 
 function drawOuterWalls() {
@@ -179,6 +181,12 @@ function addDoor() {
     let x = Math.floor(randNumber(1, grid.length - 1)/2)*2+1;
     // Call the element door
     grid[grid.length -1][x] = "door";
+}
+function addExit() {
+    // Make odd so its not blocked
+    let x = Math.floor(randNumber(1, grid.length - 1)/2)*2+1;
+
+    grid[0][x] = "exit";
 }
 
 // Create connection to database
