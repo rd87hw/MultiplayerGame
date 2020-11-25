@@ -4,6 +4,8 @@ const server = require('http').createServer(app);
 const path = require('path');
 const io = require('socket.io') (server)
 
+const mysql = require("mysql");
+
 app.use(express.static(path.join(__dirname, '/client')))
 
 io.on('connection', socket => {
@@ -13,16 +15,19 @@ io.on('connection', socket => {
     socket.on("disconnect", () => {
         console.log("Someone left.");
     });
-    
+    // Determines what level of maze to run and display to the client
     socket.on("start", difficulty => {
+        // If its easy then run the maze with size 31 and pass the grid back to the client to be displayed
         if(difficulty.toLowerCase() == "easy") {
             mazeGen(31);
             io.emit("output", grid)
         }
+        // If its medium generate a size 41x41 maze and pass the grid to the client
         if (difficulty.toLowerCase() == "medium") {
             mazeGen(41);
             io.emit("output", grid)
         }
+        // If they input hard then pass 51x51 to mazeGen and pass the grid back to the client to be displayed
         if (difficulty.toLowerCase() == "hard") {
             mazeGen(51);
             io.emit("output", grid)
@@ -46,16 +51,13 @@ function mazeGen(size) {
             grid[i][j] = "";
         }
     }
-    
-
-    
-    let entrance
+    // Parameters for drawing the maze walls
     // minX = 1, maxX = grid.length - 2, minY = 1, maxY = grid.length - 2
     drawInnerWalls(true, 1, grid.length - 2, 1, grid.length - 2);
     // Draw outer walls after the inner walls to stop holes being made in the outerwalls
     drawOuterWalls();
     // Add the door
-    entrance = addDoor();
+    let entrance = addDoor();
 }
 
 function drawOuterWalls() {
@@ -179,17 +181,37 @@ function addDoor() {
     grid[grid.length -1][x] = "door";
 }
 
-// ---Think of better way to display using DOM---
+// Create connection to database
+const db = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "scores"
+});
+// // Create the database
+// db.connect(function(err) {
+//     if (err) {
+//         throw err;
+//     }
+//     console.log("MySQL Connected")
+//     db.query("CREATE DATABASE scores", (err, result) => {
+//         if (err) throw err;
+//         console.log("Database created");
+//     });
+// });
 
+// // Create a table in the created database
+// db.connect(err => {
+//     if (err) throw err;
+//     console.log("Connected")
+//     let sql = "CREATE TABLE high_scores (id int AUTO_INCREMENT PRIMARY KEY, user_name VARCHAR(255), score VARCHAR(255), difficulty VARCHAR(255))";
+//     db.query(sql, (err, result) => {
+//         if (err) throw err;
+//         console.log("Table created");
+//     })
+// })
 
-
-
-
-
-
-
-
-
+// Insert scores
 
 
 

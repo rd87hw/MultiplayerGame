@@ -1,5 +1,14 @@
 const socket = io()
 
+const loginForm = document.getElementById("login-form");
+const loginBtn = document.getElementById("login-submit");
+
+loginBtn.addEventListener("click", e => {
+    e.preventDefault();
+
+    const USERNAME = loginForm.username.value;
+    const PASSWORD = loginForm.password.value
+});
 
 // Starts a function so we can toggle the leaderboard
 function toggleLeaderboard() {
@@ -297,5 +306,6 @@ function padding(value) {
         return valueString;
     }
 }
+
 
 
