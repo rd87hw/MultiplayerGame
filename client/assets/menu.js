@@ -1,7 +1,9 @@
+const socket = io();
+
 // Implement the toggle function here because its small
 // Get the leaderboard button from the page
 const leaderboardBtn = document.getElementById("leaderboardBtn");
-
+socket.emit("requestLeader")
 leaderboardBtn.addEventListener("click", () => {
     // Assign x to the container element, so code is easier to read
     let x = document.getElementById("container");
@@ -13,4 +15,22 @@ leaderboardBtn.addEventListener("click", () => {
     else {
         x.style.display = 'none';
     }
+});
+
+
+
+socket.on("show", (result) => {
+    console.log("results: " + result);
+
+    const row = document.getElementById("row");
+    const name = document.getElementById("name");
+    const time = document.getElementById("time");
+
+    name.setAttribute("value", result[0].user_name);
+    name.setAttribute("value", result[0].score);
+
+    name.setAttribute("value", result[0].user_name);
+    score.setAttribute("value", result[0].score);
+
+
 });

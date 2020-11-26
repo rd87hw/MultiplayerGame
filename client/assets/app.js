@@ -96,7 +96,7 @@ let gameContainer = document.createElement("div"),
     up = false,
     down = false,
     
-    playerSpeed = 3,
+    playerSpeed = 1,
     playerWidth = player.offsetWidth,
     playerHeight = player.offsetHeight;
 // Append the variable gameContainer to the document
@@ -164,20 +164,21 @@ function movePlayer() {
         if (collisionDetection()) {
             return;
         }
+        
     }
-    // // Keeps the player inside the container once they are out of the maze
-    // if (playerPos.x < gameContainer.leftBoundary) {
-    //     playerPos.x = gameContainer.leftBoundary;
-    // }
-    // if (playerPos.x > gameContainer.rightBoundary) {
-    //     playerPos.x = gameContainer.rightBoundary;
-    // }
-    // if (playerPos.y < gameContainer.topBoundary) {
-    //     playerPos.y = gameContainer.topBoundary;
-    // }
-    // if (playerPos.y > gameContainer.bottomBoundary) {
-    //     playerPos.y = gameContainer.bottomBoundary;
-    // }
+    // Keeps the player inside the container once they are out of the maze
+    if (playerPos.x < gameContainer.leftBoundary) {
+        playerPos.x = gameContainer.leftBoundary;
+    }
+    if (playerPos.x > gameContainer.rightBoundary) {
+        playerPos.x = gameContainer.rightBoundary;
+    }
+    if (playerPos.y < gameContainer.topBoundary) {
+        playerPos.y = gameContainer.topBoundary;
+    }
+    if (playerPos.y > gameContainer.bottomBoundary) {
+        playerPos.y = gameContainer.bottomBoundary;
+    }
     player.style.left = playerPos.x + "px";
     player.style.top = playerPos.y + "px";
 
@@ -244,6 +245,7 @@ function collisionDetection() {
 
                 console.log("Player Position: " + playerPos.x + ":" + playerPos.y);
                 console.log("wall position : " + wallRectArray[i].x + ", " + wallRectArray[i].y);
+                //** COLLISION ATTEMPT, TELEPORTS ACROSS THE MAP, WALLS ARE NOT WHERE THEY LOOK LIKE THEY ARE **/
 
                 // playerPos.x = wallRectArray[i].x + wallRectArray[i].width;
                 // playerPos.y = wallRectArray[i].y + wallRectArray[i].height;
@@ -254,6 +256,7 @@ function collisionDetection() {
                 // If we are colliding with a wall then return true so we can handle it
                 return true;
         }
+        // If we are colliding with the exit then end the game
         if (playerRect.x < exitRect.x + exitRect.width &&
             playerRect.x + playerRect.width > exitRect.x &&
             playerRect.y < exitRect.y + exitRect.height &&
@@ -295,9 +298,6 @@ function padding(value) {
     }
 }
 
-// const getUsername = require("./login");
-// const user_name = require("./utils/login")
-
 // TODO: Read the time and the username into the database for the given person
 // TODO: Move the player somewhere when they have finished
 function end() {
@@ -308,10 +308,10 @@ function end() {
     
     // Take final time
     const FINAL_TIME = timer.innerHTML;
-
+    // Send the final time to the server
     socket.emit("end", (FINAL_TIME));
 
-
+    //** NOT FINISHED NEED TO END WITH SOMETHING **/
     socket.on("ENDING", () => {
         console.log("We are ending the game!");
     })
@@ -319,7 +319,7 @@ function end() {
     timer.innerHTML = FINAL_TIME;
     // Stop the clock from running after we change the text
     clearInterval(stopInterval);
-
+    // Sets the player position after finishing the game
     playerPos = {x: 0, y: 0};
 
 

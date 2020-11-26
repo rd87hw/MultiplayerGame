@@ -13,7 +13,6 @@ const saltRounds = 10;
 
 
 const mysql = require("mysql");
-const { SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS } = require('constants');
 
 
 // Built-in middleware from express to reference the static files required for the pages in the site
@@ -30,6 +29,33 @@ app.get("/", function (req, res) {
 })
 // // // Post is used to post the info to the server
 app.post("/register", function(req, res) {
+    // Take username and password from user
+    const username = req.body.username;
+    const password = req.body.password;
+    // If the fields have text
+    if (username && password) {
+        // Query database and insert them
+        db.query("INSERT INTO high_scores (user_name, password) VALUES (?, ?)", [username, password], function(err, result){
+            if (result.length > 0) {
+                // Set the loggedIn session status to true
+                req.session.loggedIn = true;
+                // Set the session username to username
+                req.session.username = username;
+                // Set the session username to username
+                req.session.password = password;
+                // Give the file menu.html to the client
+                res.sendFile((path.join(__dirname + "/client/menu.html")));
+            }
+        }); 
+    }
+    else {
+        // If the user didnt enter both username and password then send a response
+        res.send("Please enter username and password to register");
+    }
+})
+
+    //** ENCRYPTION ATTEMPT - REGISTRATION WORKS **/
+
     // const password = req.body.password;
     // const username = req.body.username;
     //     bcrypt.genSalt(saltRounds, function(err, salt) {
@@ -52,90 +78,76 @@ app.post("/register", function(req, res) {
     //  })  
     // })  
 
-    const username = req.body.username;
-    const password = req.body.password;
-    if (username && password) {
-        db.query("INSERT INTO high_scores (user_name, password) VALUES (?, ?)", [username, password], function(err, result){
-            if (result.length > 0) {
-                req.session.loggedIn = true;
-                req.session.username = username;
-                req.session.password = password;
-                res.sendFile((path.join(__dirname + "/client/menu.html")));
-            }
-        }); 
-    }
-    else {
-        res.send("Please enter username and password to register");
-    }
-})
+
 
 app.post("/authenticate", function (req, res) {
+        // When button pressed set the username to be the username of the one entered in the username field
+        const username = req.body.username;
+        // When button pressed set the password to be the password of the one entered in the password field
+       const password = req.body.password;
+       // If there is a username and password present
+       if (username && password) {
+           // Query the high_scores table for the username and password
+           db.query("SELECT * FROM high_scores WHERE user_name = ? AND password = ?", [username, password], function (err, result) {
+              // If the result 
+               if (result.length > 0) {
+                   // Set the loggedIn status for this session to be true
+                   req.session.loggedIn = true;
+                   // Set the username for this person to be true
+                   req.session.username = username;
+                   req.session.password = password;
+                   // Send the menu page
+                   res.sendFile(path.join(__dirname + "/client/menu.html"));
+              }
+              else {
+                  // If the result is
+                  res.send("Incorrect username or password");
+              }
+           });
+       }
+       // If there are no username or password then
+       else {
+           // Send a response
+           res.send("Please enter username and password");
+           
+       }
+   });
+   //** ENCRYPTION ATTEMPT - AUTHENTICATION NEEDS WORK **/
 
-//     const password = req.session.password;
-//     const passwordEnt = req.body.password;
-//     const username = req.body.username;
+    // const password = req.body.password;
+    // const username = req.body.username;
 
-//     // TODO: Call up the hash stored in the DB and compare it to the one the user entered
-//     // TODO: Think of a  way to call up the stored hash string
-//     // Possibly set the session password to be the string? Probably wont work cause you have to sign out to test it losing the session
+    //  db.query("SELECT password FROM high_scores WHERE user_name ?", [username], function(err, result) {
+    //     console.log(result);
+    //     const hash = result;
+    //     if (username && password) {
+    //         bcrypt.compare(password, hash, function (err, isCorrect) {
+    //             if (err) {
+    //                 throw err;
+    //             }
+    //             else if (!isCorrect) {
+    //                 console.log("password doesnt match");
+    //                 db.query("SELECT * FROM high_scores WHERE user_name = ? AND password = ?", [username, password], function(err, result) {
+    //                     if (result.length > 0) {
+    //                         req.session.loggedIn = true;
+    //                         req.session.username = username;
+    //                         res.sendFile(path.join(__dirname + "/client/menu.html"));
+    //                     }
+    //                 })
+    //             }
+    //             else {
+    //                 console.log("password doesnt match");
+    //             }
+    //         })
+    //     }
+    //     else {
+    //         console.log("user and pass")
+    //     }
+    // })
+    
+    // })
+    
 
-//     if (username && passwordEnt) {
-//         bcrypt.compare(password, password, function (err, isCorrect) {
-//             if (err) {
-//                 throw err;
-//             }
-//             else if (!isCorrect) {
-//                 console.log("password doesnt match");
-//                 db.query("SELECT * FROM high_scores WHERE user_name = ? AND password = ?", [username, password], function(err, result) {
-//                     if (result.length > 0) {
-//                         req.session.loggedIn = true;
-//                         req.session.username = username;
-//                         res.sendFile(path.join(__dirname + "/client/menu.html"));
-//                     }
-//                 })
-//             }
-//             else {
-//                 console.log("password doesnt match");
-//             }
-//         })
-//     }
-//     else {
-//         console.log("user and pass")
-//     }
-// })
-
-
-    // When button pressed set the username to be the username of the one entered in the username field
-    const username = req.body.username;
-     // When button pressed set the password to be the password of the one entered in the password field
-    const password = req.body.password;
-    // If there is a username and password present
-    if (username && password) {
-        // Query the high_scores table for the username and password
-        db.query("SELECT * FROM high_scores WHERE user_name = ? AND password = ?", [username, password], function (err, result) {
-           // If the result 
-            if (result.length > 0) {
-                // Set the loggedIn status for this session to be true
-                req.session.loggedIn = true;
-                // Set the username for this person to be true
-                req.session.username = username;
-                req.session.password = password;
-                // Send the menu page
-                res.sendFile(path.join(__dirname + "/client/menu.html"));
-           }
-           else {
-               // If the result is
-               res.send("Incorrect username or password");
-           }
-        });
-    }
-    // If there are no username or password then
-    else {
-        // Send a response
-        res.send("Please enter username and password");
-        
-    }
-});
 // Use express to reference the page localhost:3000/menu and send the menu.html file to show
 app.get("/menu", function (req, res) {
     // If we are logged in then
@@ -185,12 +197,26 @@ app.get("/index", function (req, res) {
                             console.log(result.affectedRows + "changed row");
                         }
                     });
+                    //** ATTEMPT AT GETTING THE DATABASE TO ONLY INSERT THE NEW SCORE IF ITS GREATER THAN THE ONE JUST ACHEIVED **/
+
                     // If the result held in the database is less than the one just achieved
                     // if (result < FINAL_TIME ||  result == "null") {
                         // Update the database
                        
                     //}
                 }
+
+                db.query("SELECT user_name, score FROM high_scores ORDER BY score", function (err, result) {
+                    if (err) {
+                        throw err;
+                    }
+                    io.on("connection", socket => {
+                        socket.on("requestLeader", (result) => {
+                            io.emit("show", result)
+                        
+                        })
+                    })
+                })
             });
         });
     })
@@ -226,7 +252,7 @@ io.on('connection', socket => {
     });
 
  
-    
+        //** DIFFICULTY NOT BEING RECOGNISED AND RETURNING NULL - REMOVED FROM ABOVE DUE TO NOT WORKING **/
     
         // console.log("Connected!");
         // FIXME: Something wrong with updating the scores and or difficulty
@@ -249,6 +275,7 @@ io.on('connection', socket => {
     
             
        
+        // NOT FINISHED
 
         // Emit something to do when the users time has been inserted into the database
         io.emit("ENDING");
@@ -408,6 +435,8 @@ function addExit() {
 
     grid[0][x] = "exit";
 }
+
+//** DATABASE CREATION AND TABLE MANIPULATION **/
 
 // Create connection to database
 const db = mysql.createConnection({
