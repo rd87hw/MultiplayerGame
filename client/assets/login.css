@@ -19,12 +19,12 @@ body {
     background-color: white;
     box-shadow: 0px 0px 5px 2px black;
 }
-
 #login-form {
     align-self: flex-start;
     display: grid;
     justify-items: center;
     align-items: center;
+    display: none;
 }
 
 .login_inputs {
@@ -37,6 +37,24 @@ body {
 }
 
 #login-submit {
+    width: 100%;
+    padding: 7px;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-weight: bold;
+    background-color: #3a3a3a;
+    cursor: pointer;
+    outline: none;
+}
+#register-form {
+    align-self: flex-start;
+    display: grid;
+    justify-items: center;
+    align-items: center;
+    display: none;
+}
+#register-submit {
     width: 100%;
     padding: 7px;
     border: none;

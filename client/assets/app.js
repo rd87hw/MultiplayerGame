@@ -2,19 +2,12 @@ const socket = io()
 
 
 
-// Starts a function so we can toggle the leaderboard
-function toggleLeaderboard() {
-    // Assign x to the container element, so code is easier to read
-    let x = document.getElementById("container");
-    // If the display style of container is set to none then set it to be display type block
-    if (x.style.display === 'none') {
-        x.style.display = 'block';
-    }
-    // If its not set to none, then set it to be none
-    else {
-        x.style.display = 'none';
-    }
-}
+
+
+// // Starts a function so we can toggle the leaderboard
+// function toggleLeaderboard() {
+ 
+// }
 
 const start = document.createElement("button");
 document.body.appendChild(start);
@@ -28,7 +21,7 @@ start.setAttribute("id", "genBtn");
 start.addEventListener('click', () => {
     
     
-    let difficulty = document.getElementById("inputBox").value;
+    const difficulty = document.getElementById("inputBox").value;
 
     socket.emit("start", difficulty)
 
@@ -103,7 +96,7 @@ let gameContainer = document.createElement("div"),
     up = false,
     down = false,
     
-    playerSpeed = 4,
+    playerSpeed = 3,
     playerWidth = player.offsetWidth,
     playerHeight = player.offsetHeight;
 // Append the variable gameContainer to the document
@@ -119,7 +112,7 @@ gameContainer.appendChild(player);
 // Add player to the style class of player
 player.classList.add("player");
 // Add a text box so the user can input difficulty
-textDiff = document.createElement("input");
+const textDiff = document.createElement("input");
 // Append the text box to the document
 document.body.appendChild(textDiff);
 // Give the new element the class style of inputBox
@@ -265,7 +258,8 @@ function collisionDetection() {
             playerRect.x + playerRect.width > exitRect.x &&
             playerRect.y < exitRect.y + exitRect.height &&
             playerRect.y + playerRect.height > exitRect.y) {
-                end();
+                
+                end(getUsername);
             }
     }    
 }
@@ -300,17 +294,33 @@ function padding(value) {
         return valueString;
     }
 }
+
+// const getUsername = require("./login");
+// const user_name = require("./utils/login")
+
 // TODO: Read the time and the username into the database for the given person
 // TODO: Move the player somewhere when they have finished
 function end() {
+
+    const difficulty = docucment.getElementById("inputBox").value;
+
+    
     // Take final time
     const FINAL_TIME = timer.innerHTML;
+
+    socket.emit("end", (FINAL_TIME, difficulty, USERNAME, PASSWORD));
+
+
+    socket.on("ENDING", () => {
+        console.log("We are ending the game!");
+    })
     // Set the timer to Finished
-    timer.innerHTML = "FINISHED!"
+    timer.innerHTML = FINAL_TIME;
     // Stop the clock from running after we change the text
     clearInterval(stopInterval);
 
     playerPos = {x: 0, y: 0};
+
 
 
     

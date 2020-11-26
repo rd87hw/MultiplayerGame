@@ -1,12 +1,100 @@
 const express = require('express');
+const router = express.Router();
+const session = require("express-session");
+const bodyParser = require('body-parser');
 const app = express();
 const server = require('http').createServer(app);
 const path = require('path');
 const io = require('socket.io') (server)
 
+
+
 const mysql = require("mysql");
 
-app.use(express.static(path.join(__dirname, '/client')))
+
+// Built-in middleware from express to reference the static files required for the pages in the site
+app.use(express.static(path.join(__dirname + '/client/assets')))
+// TODO: secret is ...; resave is whether we save the session after every change; saveUninit is if it should save uninit objects
+app.use(session({secret: "secretscores", resave:true,saveUninitialized:true}))
+// Needed for POST requests
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
+
+// Use express app.get to reference the page either localhost:3000/ or localhost:3000 and send the login page
+app.get("/", function (req, res) {
+    res.sendFile(__dirname + "/client/login.html");
+})
+// // // Post is used to post the info to the server
+app.post("/register", function(req, res) {
+    const username = req.body.username;
+    const password = req.body.password;
+    if (username && password) {
+        db.query("INSERT INTO high_scores (user_name, password) VALUES (?, ?)", [username, password], function(err, result){
+            req.session.loggedIn = true;
+            req.session.username = username;
+            res.sendFile((path.join(__dirname + "/client/menu.html")));
+        }); 
+    }
+    res.end();
+})
+
+app.post("/authenticate", function (req, res) {
+    // When button pressed set the username to be the username of the one entered in the username field
+    const username = req.body.username;
+     // When button pressed set the password to be the password of the one entered in the password field
+    const password = req.body.password;
+    // If there is a username and password present
+    if (username && password) {
+        // Query the high_scores table for the username and password
+        db.query("SELECT * FROM high_scores WHERE user_name = ? AND password = ?", [username, password], function (err, result) {
+           // If the result 
+            if (result.length > 0) {
+                // Set the loggedIn status for this session to be true
+                req.session.loggedIn = true;
+                // Set the username for this person to be true
+                req.session.username = username;
+                // req.session.password = password;
+                // Send the menu page
+                res.sendFile(path.join(__dirname + "/client/menu.html"));
+           }
+           else {
+               // If the result is
+               res.send("Incorrect username or password")
+           }
+        });
+    }
+    // If there are no username or password then
+    else {
+        // Send a response
+        res.send("Please enter username and password");
+        
+    }
+});
+// Use express to reference the page localhost:3000/menu and send the menu.html file to show
+app.get("/menu", function (req, res) {
+    if (req.session.loggedIn) {
+        res.sendFile(__dirname + "/client/menu.html");
+        // res.send("Welcome back, " + req.session.username);
+    }
+    else {
+        res.send("Please login to play the Maze game")
+    }
+    
+});
+// Use express to reference the page localhost:3000/index and send the index.html file to show
+app.get("/index", function (req, res) {
+    if (req.session.loggedIn) {
+        res.sendFile(path.join(__dirname + "/client/index.html"));
+    }
+    else {
+        res.send("Please login to play the Maze game");
+    }
+    
+});
+
+
+
+
 
 io.on('connection', socket => {
     console.log('Someone connected.');
@@ -32,6 +120,24 @@ io.on('connection', socket => {
             mazeGen(51);
             io.emit("output", grid)
         }
+    });
+    // // FIXME: Import the data from login.js, doing it this way will update the DB every time a user logs in
+    socket.on("end", function (FINAL_TIME, difficulty, USERNAME, PASSWORD){
+        const db = mysql.createConnection({
+            host: "localhost",
+            user: "root",
+            password: "",
+            database: "scores"
+        });
+
+        db.connect(function(err) {
+            if (err) throw err;
+            console.log("Connected!");
+            const sql = "INSERT INTO high_scores (user_name, score, difficulty) VALUES ("+USERNAME+", "+FINAL_TIME+", "+difficulty+", "+PASSWORD+")";
+        });
+
+        // Emit something to do when the users time has been inserted into the database
+        io.emit("ENDING");
     });
 
 });
@@ -208,18 +314,36 @@ const db = mysql.createConnection({
 //     });
 // });
 
-// // Create a table in the created database
+// Create a table in the created database
 // db.connect(err => {
 //     if (err) throw err;
 //     console.log("Connected")
-//     let sql = "CREATE TABLE high_scores (id int AUTO_INCREMENT PRIMARY KEY, user_name VARCHAR(255), score VARCHAR(255), difficulty VARCHAR(255))";
+//     let sql = "CREATE TABLE users (id int AUTO_INCREMENT PRIMARY KEY, user_name VARCHAR(255), score VARCHAR(255), difficulty VARCHAR(255))";
 //     db.query(sql, (err, result) => {
 //         if (err) throw err;
 //         console.log("Table created");
 //     })
 // })
+// // Insert column password
+// db.connect(err => {
+//     if (err) throw err;
+//     console.log("Connected!");
+//     const sql = "ALTER table high_scores ADD column (password varchar(255))";
+//     db.query(sql, function(err, result) {
+//         if (err) throw err;
+//         console.log("Table has been changed. Cols added: ", result.affectedCols);
+//     });
+// });
 
-// Insert scores
+
+
+
+
+
+
+
+
+
 
 
 

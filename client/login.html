@@ -5,22 +5,82 @@
     <meta charset = "UTF-8">
     <title>Login</title>
     <link rel="stylesheet" href = "login.css">
-    <script src = "app.js"></script>
+    <script src = "login.js" type = "module"></script>
+    
 </head>
 
 <body>
     <main id = "main-holder">
-        <h1 id = "login-header">login</h1>
-    
+        <h1 id = "login-header">Sign in to play the Maze Game</h1>
 
-        <form id = "login-form">
+        <div class = "button-cont">
+            <button type = "button" id = "loginbtn" onclick="login()"> Login</button>
+            <button type = "button" id = "registerbtn" onclick="register()"> Register</button>
+        </div>
+        
+        <form id = "register-form" class = "group" action = "register" method = "POST">
+            <input type = "text" name = "username" id=  "username" placeholder = "username" class = "login_inputs">
+            <input type = "text" name = "password" id=  "password" placeholder = "password" class = "login_inputs">
+            <input type="submit" value = "Register" id = "register-submit">
+            <p> Already have an account? Please login</p>
+        </form>
+
+        <form id = "login-form" class = "group" action = "authenticate" method = "POST">
             <input type = "text" name = "username" id=  "username" placeholder = "username" class = "login_inputs">
             <input type = "text" name = "password" id=  "password" placeholder = "password" class = "login_inputs">
             <input type="submit" value = "Login" id = "login-submit">
+            <p> Don't have an account? Please register</p>
         </form>
 
     </main>
+    <script>
+        const loginbtn = document.getElementById("loginbtn");
+        const registerbtn = document.getElementById("registerbtn");
+        let x = document.getElementById("login-form");
+        let y = document.getElementById("register-form");
 
+        // These 2 event listeners toggle the register and the login buttons
+        // Both cannot appear at the same time and you may switch between each button with the other disappearing
+        loginbtn.addEventListener("click", () => {      
+        if (x.style.display === 'none') {
+            x.style.display = 'grid';
+        }
+        else {
+            x.style.display = 'none';
+        }
+        if (x.style.display === "grid") {
+        y.style.display = "none";
+        }
+        if (y.style.display === "grid") {
+            x.style.display = "none";
+        }
+    });
+    registerbtn.addEventListener("click", () => {
+        // Assign x to the container element, so code is easier to read
+        
+        // If the display style of register is set to none then set it to be display type grid
+        if (y.style.display === 'none') {
+            y.style.display = 'grid';
+        }
+        // If its not grid then set it to none
+        else {
+            y.style.display = 'none';
+        }
+        if (y.style.display === "grid") {
+        x.style.display = "none";
+        }
+        if (x.style.display === "grid") {
+            y.style.display = "none";
+        }
+    });
+
+    
+
+    
+
+
+
+    </script>
 
 </body>
 
