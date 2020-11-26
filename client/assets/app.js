@@ -20,10 +20,10 @@ start.setAttribute("id", "genBtn");
 
 start.addEventListener('click', () => {
     
-    
     const difficulty = document.getElementById("inputBox").value;
+    
 
-    socket.emit("start", difficulty)
+    socket.emit("start", difficulty);
 
     socket.on("output", grid => {
         // Set the maze to be nothing
@@ -245,8 +245,8 @@ function collisionDetection() {
                 console.log("Player Position: " + playerPos.x + ":" + playerPos.y);
                 console.log("wall position : " + wallRectArray[i].x + ", " + wallRectArray[i].y);
 
-                playerPos.x = wallRectArray[i].x + wallRectArray[i].width;
-                playerPos.y = wallRectArray[i].y + wallRectArray[i].height;
+                // playerPos.x = wallRectArray[i].x + wallRectArray[i].width;
+                // playerPos.y = wallRectArray[i].y + wallRectArray[i].height;
                 
 
                 console.log(playerPos.x + " " + playerPos.y);
@@ -259,7 +259,7 @@ function collisionDetection() {
             playerRect.y < exitRect.y + exitRect.height &&
             playerRect.y + playerRect.height > exitRect.y) {
                 
-                end(getUsername);
+                end();
             }
     }    
 }
@@ -302,13 +302,14 @@ function padding(value) {
 // TODO: Move the player somewhere when they have finished
 function end() {
 
-    const difficulty = docucment.getElementById("inputBox").value;
+    // const diff = document.getElementById("inputBox").value;
+    // console.log(diff);
 
     
     // Take final time
     const FINAL_TIME = timer.innerHTML;
 
-    socket.emit("end", (FINAL_TIME, difficulty, USERNAME, PASSWORD));
+    socket.emit("end", (FINAL_TIME));
 
 
     socket.on("ENDING", () => {

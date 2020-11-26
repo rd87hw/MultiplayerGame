@@ -1,15 +1,19 @@
 const express = require('express');
-const router = express.Router();
 const session = require("express-session");
 const bodyParser = require('body-parser');
 const app = express();
 const server = require('http').createServer(app);
 const path = require('path');
 const io = require('socket.io') (server)
+const bcrypt = require("bcrypt");
+// Salt rounds is the number of times the password is "encrypted", increasing this factor by 1 doubles the time it takes to 
+// Generate, but it also means brute forcing the password is harder. The standard salt rounds is 10
+const saltRounds = 10;
 
 
 
 const mysql = require("mysql");
+const { SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS } = require('constants');
 
 
 // Built-in middleware from express to reference the static files required for the pages in the site
@@ -26,19 +30,81 @@ app.get("/", function (req, res) {
 })
 // // // Post is used to post the info to the server
 app.post("/register", function(req, res) {
+    // const password = req.body.password;
+    // const username = req.body.username;
+    //     bcrypt.genSalt(saltRounds, function(err, salt) {
+    //         if (err) throw err;
+    //         bcrypt.hash(password, salt, function (err ,hash){
+    //             if (err) throw err;
+    //             console.log(hash);
+
+    //             if (username && password) {
+    //                 db.query("INSERT INTO high_scores (user_name, password) VALUES (?, ?)", [username, hash], function(err, result){   
+    //                     if (result.length > 0) {
+    //                         req.session.loggedIn = true;
+    //                         req.session.username = username;
+    //                         req.session.password = password;
+    //                         res.sendFile((path.join(__dirname + "/client/menu.html")));
+    //                     }
+    //                 })
+    //             }    
+    //     })
+    //  })  
+    // })  
+
     const username = req.body.username;
     const password = req.body.password;
     if (username && password) {
         db.query("INSERT INTO high_scores (user_name, password) VALUES (?, ?)", [username, password], function(err, result){
-            req.session.loggedIn = true;
-            req.session.username = username;
-            res.sendFile((path.join(__dirname + "/client/menu.html")));
+            if (result.length > 0) {
+                req.session.loggedIn = true;
+                req.session.username = username;
+                req.session.password = password;
+                res.sendFile((path.join(__dirname + "/client/menu.html")));
+            }
         }); 
     }
-    res.end();
+    else {
+        res.send("Please enter username and password to register");
+    }
 })
 
 app.post("/authenticate", function (req, res) {
+
+//     const password = req.session.password;
+//     const passwordEnt = req.body.password;
+//     const username = req.body.username;
+
+//     // TODO: Call up the hash stored in the DB and compare it to the one the user entered
+//     // TODO: Think of a  way to call up the stored hash string
+//     // Possibly set the session password to be the string? Probably wont work cause you have to sign out to test it losing the session
+
+//     if (username && passwordEnt) {
+//         bcrypt.compare(password, password, function (err, isCorrect) {
+//             if (err) {
+//                 throw err;
+//             }
+//             else if (!isCorrect) {
+//                 console.log("password doesnt match");
+//                 db.query("SELECT * FROM high_scores WHERE user_name = ? AND password = ?", [username, password], function(err, result) {
+//                     if (result.length > 0) {
+//                         req.session.loggedIn = true;
+//                         req.session.username = username;
+//                         res.sendFile(path.join(__dirname + "/client/menu.html"));
+//                     }
+//                 })
+//             }
+//             else {
+//                 console.log("password doesnt match");
+//             }
+//         })
+//     }
+//     else {
+//         console.log("user and pass")
+//     }
+// })
+
+
     // When button pressed set the username to be the username of the one entered in the username field
     const username = req.body.username;
      // When button pressed set the password to be the password of the one entered in the password field
@@ -53,13 +119,13 @@ app.post("/authenticate", function (req, res) {
                 req.session.loggedIn = true;
                 // Set the username for this person to be true
                 req.session.username = username;
-                // req.session.password = password;
+                req.session.password = password;
                 // Send the menu page
                 res.sendFile(path.join(__dirname + "/client/menu.html"));
            }
            else {
                // If the result is
-               res.send("Incorrect username or password")
+               res.send("Incorrect username or password");
            }
         });
     }
@@ -72,10 +138,12 @@ app.post("/authenticate", function (req, res) {
 });
 // Use express to reference the page localhost:3000/menu and send the menu.html file to show
 app.get("/menu", function (req, res) {
+    // If we are logged in then
     if (req.session.loggedIn) {
+        // Give the client the menu page
         res.sendFile(__dirname + "/client/menu.html");
-        // res.send("Welcome back, " + req.session.username);
     }
+    // If we aren't logged in then tell user to login
     else {
         res.send("Please login to play the Maze game")
     }
@@ -83,27 +151,62 @@ app.get("/menu", function (req, res) {
 });
 // Use express to reference the page localhost:3000/index and send the index.html file to show
 app.get("/index", function (req, res) {
+    // If we are logged in using the session cookies then
     if (req.session.loggedIn) {
+        // Send the user the index.html page to play the gamee
         res.sendFile(path.join(__dirname + "/client/index.html"));
     }
+    // If we aren't logged in, tell the user to log in to play the game
     else {
         res.send("Please login to play the Maze game");
     }
-    
+
+    io.on("connection", socket => {
+        // Catches an event called "end" thrown from the client to end the game
+        // This will place all the details of the player into a database
+        // Difficulty had to be removed due to time constraints
+        socket.on("end", function (FINAL_TIME) {
+            const username = req.session.username;
+            const password = req.session.password;
+            // Select the score for the current user
+            sql = "SELECT score FROM high_scores WHERE user_name = ?"; 
+            // query the database
+            db.query(sql, [username], function(err, result) {
+                if (err) {
+                    throw err;
+                }
+                else {
+                    console.log(result);
+                    db.query("UPDATE high_scores SET score = ? WHERE user_name = ?", [FINAL_TIME, username], function (err, result) {
+                        if (err) {
+                            throw err;
+                        }
+                        else {
+                            console.log(result.affectedRows + "changed row");
+                        }
+                    });
+                    // If the result held in the database is less than the one just achieved
+                    // if (result < FINAL_TIME ||  result == "null") {
+                        // Update the database
+                       
+                    //}
+                }
+            });
+        });
+    })
 });
 
-
-
-
-
+// When someone connects run code
 io.on('connection', socket => {
+    // Print for debugging
     console.log('Someone connected.');
 
-
+    // Print someone left to the console if someone leaves
     socket.on("disconnect", () => {
         console.log("Someone left.");
     });
     // Determines what level of maze to run and display to the client
+    // Catches an event called "start" that has been thrown from the client to generate the maze with a difficulty given by the client
     socket.on("start", difficulty => {
         // If its easy then run the maze with size 31 and pass the grid back to the client to be displayed
         if(difficulty.toLowerCase() == "easy") {
@@ -121,24 +224,35 @@ io.on('connection', socket => {
             io.emit("output", grid)
         }
     });
-    // // FIXME: Import the data from login.js, doing it this way will update the DB every time a user logs in
-    socket.on("end", function (FINAL_TIME, difficulty, USERNAME, PASSWORD){
-        const db = mysql.createConnection({
-            host: "localhost",
-            user: "root",
-            password: "",
-            database: "scores"
-        });
 
-        db.connect(function(err) {
-            if (err) throw err;
-            console.log("Connected!");
-            const sql = "INSERT INTO high_scores (user_name, score, difficulty) VALUES ("+USERNAME+", "+FINAL_TIME+", "+difficulty+", "+PASSWORD+")";
-        });
+ 
+    
+    
+        // console.log("Connected!");
+        // FIXME: Something wrong with updating the scores and or difficulty
+        // db.query("UPDATE high_scores SET difficulty = ? WHERE user_name = ?", [difficulty, username], function (err, result) {
+        //     if (err) {
+        //         throw err;
+        //     }
+        //     else {
+        //         console.log(result.affectedRows + " record updated");
+        //     }
+        // });
+        // db.query("UPDATE high_scores SET score = ? WHERE user_name = ?", [FINAL_TIME, username], function (err, result) {
+        //     if (err) {
+        //         throw err;
+        //     }
+        //     else {
+        //         console.log("result: " + result.affectedRows);
+        //     }
+        // });
+    
+            
+       
 
         // Emit something to do when the users time has been inserted into the database
         io.emit("ENDING");
-    });
+    // });
 
 });
 
@@ -158,7 +272,7 @@ function mazeGen(size) {
         }
     }
     // Parameters for drawing the maze walls
-    // minX = 1, maxX = grid.length - 2, minY = 1, maxY = grid.length - 2
+    // isDone = true, minX = 1, maxX = grid.length - 2, minY = 1, maxY = grid.length - 2
     drawInnerWalls(true, 1, grid.length - 2, 1, grid.length - 2);
     // Draw outer walls after the inner walls to stop holes being made in the outerwalls
     drawOuterWalls();
@@ -334,17 +448,6 @@ const db = mysql.createConnection({
 //         console.log("Table has been changed. Cols added: ", result.affectedCols);
 //     });
 // });
-
-
-
-
-
-
-
-
-
-
-
 
 
 server.listen(3000, () => {
